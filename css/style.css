@@ -1,5 +1,15 @@
+:root {
+  /* Set from JS (updateBoardScale in main.js) to whatever fits the viewport, capped at 1 so the
+     board never scales up past its normal desired size -- only ever down, for small windows. */
+  --board-scale: 1;
+}
+
 html, body {
-  min-height: 100%;
+  /* A hard height (not min-height) so the page itself always matches the viewport, even though
+     .table/.board-wrap keep their full unscaled layout size underneath the --board-scale
+     transform -- otherwise body would grow to fit that unscaled size on small screens, throwing
+     off centering and pushing content below the fold despite the board visually being shrunk. */
+  height: 100%;
   margin: 0;
   background: #000;
   color: #eee;
@@ -25,6 +35,10 @@ html, body {
   position: relative;
   width: 1000px;
   flex: none;
+  /* Everything inside (board, cards, buttons, modals) is positioned as a percentage of this box,
+     so scaling the whole box down uniformly shrinks the entire UI without touching that math. */
+  transform: scale(var(--board-scale));
+  transform-origin: center center;
 }
 
 .board {
@@ -367,12 +381,8 @@ html, body {
   pointer-events: none;
 }
 
-/* Elemental rule: +1/-1 badge for a card currently sitting on a matching/non-matching elemental
-   tile. Display-only -- the actual capture math lives in game.js/effectiveCardValue. */
 .card-element-bonus {
   position: absolute;
-  /* Centered on the four corner value badges (top/right/bottom/left), not the card itself --
-     their cluster sits left-of-center to leave the art visible on the right. */
   top: 11cqh;
   right: 1cqw;
   transform: translate(-50%, -50%);
@@ -429,9 +439,6 @@ html, body {
   backface-visibility: hidden;
 }
 
-/* Initial rotation (matching the flip axis) is set inline per-instance in flipCell(). */
-
-/* The card in flight from a hand slot to its board cell; positioned/animated via JS. */
 .flying-card {
   position: absolute;
   box-sizing: border-box;
@@ -463,8 +470,6 @@ html, body {
   to { transform: translate(-50%, -50%) perspective(400px) rotateY(var(--spin-end-deg, 1440deg)) rotate(90deg); }
 }
 
-/* Swap rule: sits just above the turn-indicator arrow while it's parked over the player's hand,
-   shown only during the player's turn and only if their one-per-game Swap hasn't been used yet. */
 .swap-ok-label {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -479,9 +484,6 @@ html, body {
   z-index: 11;
 }
 
-/* Event banners (Same!/Plus!/Combo!/Advance!): the layer covers the whole board so the banner
-   can fly in from beyond the right edge and out past the left edge; the banner itself is sized
-   to the center 60% of that layer, per the design brief. */
 .event-banner-layer {
   position: absolute;
   inset: 0;
@@ -518,7 +520,6 @@ html, body {
   100% { transform: translateX(-140%); opacity: 1; }
 }
 
-/* First letter: white on a bordered, rule-colored rectangle (color set inline via --badge-color). */
 .event-banner-letter {
   display: inline-flex;
   align-items: center;
@@ -532,11 +533,6 @@ html, body {
   line-height: 1.1;
 }
 
-/* Shared by any banner text that needs a solid fill with a white inner border and a black outer
-   border: built from two stacked outline copies (::before/::after) behind the real, unstroked
-   glyph. The element's own `color` is the fill; `data-text` must match its visible text so the
-   pseudo-elements' attr(data-text) content lines up with it. Used by the event banners and the
-   endgame banner alike. */
 .stroked-text {
   position: relative;
   line-height: 1.1;
@@ -567,9 +563,6 @@ html, body {
   color: #2b1385;
 }
 
-/* Endgame banner: "You Win!"/"You Lose...", same stroke treatment as the event banners, in a
-   muted color with just the key letter (W/L) picked out. Persists once shown (no fly animation)
-   since it marks a final state, not a transient event. */
 .endgame-banner-layer {
   position: absolute;
   inset: 0;
@@ -594,7 +587,6 @@ html, body {
   color: #526767;
 }
 
-/* Flex items don't preserve a plain trailing-space gap between them, so this is explicit. */
 .endgame-banner-prefix {
   margin-right: 0.2em;
 }
@@ -603,8 +595,6 @@ html, body {
   color: var(--letter-color, #526767);
 }
 
-/* Setup modal: covers the board (not the whole page) so it reads as "over the table" rather
-   than a generic page dialog. Shown on load and again whenever New Game is pressed mid-game. */
 .setup-modal-overlay {
   position: absolute;
   inset: 0;
@@ -641,10 +631,6 @@ html, body {
   color: #c9a227;
 }
 
-/* Card Catalog: a browsable read-only view of every card in a set, one rank per page (as a 6-wide
-   grid -- 2 rows for a typical 12-card rank, wrapping further if a rank ever has more), picked via
-   the rank chips below it. Separate overlay from the setup modal since the two are shown at
-   different times (setup before a game starts, catalog during one) but styled the same way. */
 .card-catalog-overlay {
   position: absolute;
   inset: 0;
@@ -660,8 +646,6 @@ html, body {
   display: none;
 }
 
-/* Sized to its content (the rank grid below), not stretched to a fixed height -- otherwise the
-   grid ends up floating in a mostly-empty box. max-height is just a safety cap. */
 .card-catalog-modal {
   position: relative;
   display: flex;
@@ -679,10 +663,6 @@ html, body {
   overflow: hidden;
 }
 
-/* One .catalog-card-row per row of up to 6 cards -- kept as separate elements (rather than one
-   flat grid) so the swipe transition between levels can animate each row independently, with a
-   slight stagger between them. overflow:hidden clips the rows mid-swipe instead of showing
-   scrollbars. */
 .card-catalog-grid {
   width: 100%;
   overflow: hidden;
@@ -703,18 +683,10 @@ html, body {
   aspect-ratio: 184 / 238;
 }
 
-/* Level swipe transition: the outgoing row(s) slide left and fade, then the incoming row(s)
-   slide in from the right -- staggered per row (via animation-delay set in JS) so the top row
-   moves a beat before the bottom row. */
 .catalog-card-row.swiping-out {
   animation: catalog-row-swipe-out 220ms ease-in forwards;
 }
 
-/* fill-mode "both" (not just "forwards"): the staggered rows sit through their animation-delay
-   before starting, and without "backwards" too, a delayed row would render at its normal resting
-   style (fully in place, opaque) for that whole delay -- flickering there before snapping to the
-   off-screen starting keyframe and animating in. "both" holds the first keyframe throughout the
-   delay instead. */
 .catalog-card-row.swiping-in {
   animation: catalog-row-swipe-in 260ms ease-out both;
 }

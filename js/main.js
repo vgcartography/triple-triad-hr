@@ -18,6 +18,22 @@ const CARD_SHEETS = CARD_SET_SUFFIXES.map((suffix) => ({
 // board.png = 1256x1011
 const BOARD_NATIVE_WIDTH = 1256;
 const BOARD_NATIVE_HEIGHT = 1011;
+const BOARD_WRAP_WIDTH_PX = 1000;
+const BOARD_WRAP_VIEWPORT_MARGIN_PX = 16;
+
+// Mobile/small-window fit: scale the board down to whatever fits the viewport, but never scale it
+// up past its normal (desired) size -- capped at 1.
+function updateBoardScale() {
+  const naturalHeight = BOARD_WRAP_WIDTH_PX * (BOARD_NATIVE_HEIGHT / BOARD_NATIVE_WIDTH);
+  const availableWidth = window.innerWidth - BOARD_WRAP_VIEWPORT_MARGIN_PX;
+  const availableHeight = window.innerHeight - BOARD_WRAP_VIEWPORT_MARGIN_PX;
+  const scale = Math.min(1, availableWidth / BOARD_WRAP_WIDTH_PX, availableHeight / naturalHeight);
+  document.documentElement.style.setProperty('--board-scale', scale);
+}
+
+window.addEventListener('resize', updateBoardScale);
+updateBoardScale();
+
 const CELL_ORIGIN_X = 334;
 const CELL_ORIGIN_Y = 136;
 const CELL_WIDTH = 184;
