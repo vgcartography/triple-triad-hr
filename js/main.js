@@ -1295,13 +1295,22 @@ function globalRankTotalRanges() {
   return globalRankTotalRangesCache;
 }
 
+// The highest single side value any real card of each level has, e.g. no level 1 card in the
+// original game has a 9 on any side even though 9 alone wouldn't blow its stat-total range.
+let globalRankMaxValueCache = null;
+function globalRankMaxValue() {
+  if (!globalRankMaxValueCache) globalRankMaxValueCache = computeRankMaxValue(allCards);
+  return globalRankMaxValueCache;
+}
+
 // RNG relabels a card to a random (selected) level, and its stats need to actually belong to that
 // level rather than keeping whatever the card's real level would have given it.
 function rngRankedCard(card) {
   const rank = randomCardRankFromSelection();
   const range = globalRankTotalRanges().get(rank);
+  const maxValue = globalRankMaxValue().get(rank);
   const [top, right, bottom, left] = range
-    ? randomCardStatsForRange(range.min, range.max)
+    ? randomCardStatsForRange(range.min, range.max, maxValue)
     : [card.top, card.right, card.bottom, card.left];
   return { ...card, rank, top, right, bottom, left };
 }

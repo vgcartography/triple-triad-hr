@@ -119,12 +119,24 @@ function computeRankTotalRanges(cards) {
   return ranges;
 }
 
-// Builds 4 side values (1-10 each) summing to a random total within [minSum, maxSum] -- used to
-// give an RNG-relabeled card stats that actually belong to its new level, instead of just keeping
-// its original (now mismatched) values.
-function randomCardStatsForRange(minSum, maxSum) {
-  const lo = Math.max(4, Math.min(40, minSum));
-  const hi = Math.max(lo, Math.min(40, maxSum));
+// The highest single side value seen on any real card of each level -- e.g. in the original game
+// no level 1 card has a 9 on any side, even though its stat totals alone wouldn't rule that out.
+function computeRankMaxValue(cards) {
+  const maxByRank = new Map();
+  for (const card of cards) {
+    const cardMax = Math.max(card.top, card.right, card.bottom, card.left);
+    if (cardMax > (maxByRank.get(card.rank) ?? 0)) maxByRank.set(card.rank, cardMax);
+  }
+  return maxByRank;
+}
+
+// Builds 4 side values summing to a random total within [minSum, maxSum], with no single side
+// exceeding maxValue -- used to give an RNG-relabeled card stats that actually belong to its new
+// level, instead of just keeping its original (now mismatched) values.
+function randomCardStatsForRange(minSum, maxSum, maxValue = 10) {
+  const cap = Math.max(1, Math.min(10, maxValue));
+  const lo = Math.max(4, Math.min(cap * 4, minSum));
+  const hi = Math.max(lo, Math.min(cap * 4, maxSum));
   const total = lo + Math.floor(Math.random() * (hi - lo + 1));
 
   const slots = [0, 1, 2, 3];
@@ -134,11 +146,12 @@ function randomCardStatsForRange(minSum, maxSum) {
   }
 
   const values = [0, 0, 0, 0];
-  let remaining = total - 4; // each side starts at a base of 1; distribute the rest (0-9 extra each)
+  const maxExtra = cap - 1;
+  let remaining = total - 4; // each side starts at a base of 1; distribute the rest (0..cap-1 extra each)
   slots.forEach((slot, idx) => {
     const slotsLeft = slots.length - idx - 1;
-    const maxHere = Math.min(9, remaining);
-    const minHere = Math.max(0, remaining - 9 * slotsLeft);
+    const maxHere = Math.min(maxExtra, remaining);
+    const minHere = Math.max(0, remaining - maxExtra * slotsLeft);
     const extra = minHere + Math.floor(Math.random() * (maxHere - minHere + 1));
     values[slot] = extra + 1;
     remaining -= extra;

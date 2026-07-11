@@ -750,6 +750,20 @@ html, body {
   z-index: 52;
 }
 
+/* Signature attribution -- small and unobtrusive, centered below the status line near the bottom
+   edge of the board art. */
+.attribution-footer {
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  transform: translateX(-50%);
+  height: 3.5%;
+  width: auto;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 10;
+}
+
 .facet-row {
   display: flex;
   gap: 18px;
