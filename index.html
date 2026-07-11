@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triple Triad</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="table">
+  <div class="board-wrap">
+    <img class="board" src="img/board.png" alt="board">
+    <div class="board-area-backing" id="board-area-backing"></div>
+    <div class="grid" id="grid"></div>
+    <div class="hand-score" id="score-player"></div>
+    <div class="hand-score" id="score-ai"></div>
+    <div class="hand-overlay" id="hand-player"></div>
+    <div class="hand-overlay" id="hand-ai"></div>
+    <div class="status" id="status"></div>
+    <div class="turn-indicator" id="turn-indicator"></div>
+    <div class="swap-ok-label" id="swap-ok-label">Swap OK</div>
+
+    <div class="event-banner-layer">
+      <div class="event-banner" id="event-banner">
+        <span class="event-banner-letter" id="event-banner-letter"></span><span class="event-banner-rest stroked-text" id="event-banner-rest"></span>
+      </div>
+    </div>
+
+    <div class="endgame-banner-layer" id="endgame-banner-layer" hidden>
+      <span class="endgame-banner-prefix stroked-text" id="endgame-banner-you">You</span>
+      <span class="endgame-banner-letter stroked-text" id="endgame-banner-letter"></span>
+      <span class="endgame-banner-rest stroked-text" id="endgame-banner-rest"></span>
+    </div>
+
+    <div class="setup-modal-overlay" id="setup-modal-overlay" hidden>
+      <div class="setup-modal">
+        <div class="modal-title">Triple Triad: House Rules Edition</div>
+        <div class="facet-row">
+          <div class="facet">
+            <div class="facet-label">Board Size</div>
+            <div class="chip-group" id="board-size-facet"></div>
+          </div>
+          <div class="facet">
+            <div class="facet-label">Deck Size</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" id="deck-size-minus" aria-label="Decrease deck size">−</button>
+              <div class="stepper-value" id="deck-size-value">5</div>
+              <button type="button" class="stepper-btn" id="deck-size-plus" aria-label="Increase deck size">+</button>
+            </div>
+          </div>
+          <div class="facet">
+            <div class="facet-label">Decks</div>
+            <div class="dropdown-multiselect" id="decks-facet">
+              <button type="button" class="dropdown-multiselect-toggle" id="decks-facet-toggle" aria-haspopup="true" aria-expanded="false">All Decks</button>
+              <div class="dropdown-multiselect-panel" id="decks-facet-panel" hidden>
+                <div class="chip-group" id="decks-facet-chips"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="facet-row">
+          <div class="facet">
+            <div class="facet-label-row">
+              <div class="facet-label">Card Levels</div>
+              <button type="button" class="info-btn" id="ranks-info-btn" aria-label="What's the score range for each rank?">?</button>
+              <div class="info-popover" id="ranks-info-popover" hidden>
+                <dl id="ranks-info-list"></dl>
+              </div>
+            </div>
+            <div class="chip-group chip-grid" id="rank-facet"></div>
+            <div class="chip-group" id="deal-options-facet"></div>
+          </div>
+        </div>
+        <div class="facet-row">
+          <div class="facet">
+            <div class="facet-label">Difficulty</div>
+            <div class="chip-group" id="ai-difficulty-facet"></div>
+          </div>
+        </div>
+        <div class="facet-row">
+          <div class="facet">
+            <div class="facet-label-row">
+              <div class="facet-label">Rules</div>
+              <button type="button" class="info-btn" id="rules-info-btn" aria-label="What do these rules do?">?</button>
+              <div class="info-popover" id="rules-info-popover" hidden>
+                <dl>
+                  <dt>Same</dt>
+                  <dd>Capture cards that have the same ranks on 2 or more sides.</dd>
+                  <dt>Wall</dt>
+                  <dd>(Same rule only) Treats the outside walls as 'A' ranks.</dd>
+                  <dt>Plus</dt>
+                  <dd>Capture cards that add up to the same sum on 2 adjacent sides.</dd>
+                  <dt>Combo</dt>
+                  <dd>Cards captured with Same, Plus or Advance will chain more cards based on higher ranks.</dd>
+                  <dt>Open</dt>
+                  <dd>All cards face up.</dd>
+                  <dt>Elemental</dt>
+                  <dd>Imbues certain cards and spaces with elements that grant +1 if matched or -1 if not.</dd>
+                </dl>
+              </div>
+            </div>
+            <div class="chip-group" id="rules-facet"></div>
+          </div>
+        </div>
+        <div class="facet-row">
+          <div class="facet">
+            <div class="facet-label-row">
+              <div class="facet-label">House Rules</div>
+              <button type="button" class="info-btn" id="house-rules-info-btn" aria-label="What do these house rules do?">?</button>
+              <div class="info-popover" id="house-rules-info-popover" hidden>
+                <dl>
+                  <dt>Advance</dt>
+                  <dd>Move into an opposing card's spot after capture.</dd>
+                  <dt>Memory</dt>
+                  <dd>Card ranks fade away soon after being placed on the board.</dd>
+                  <dt>Swap</dt>
+                  <dd>Once per game, swap a placed card out for a different card.</dd>
+                  <dt>Slide</dt>
+                  <dd>Use your turn to move a placed card one space.</dd>
+                  <dt>Overkill</dt>
+                  <dd>Capturing a card by at least 2x rank will lock it to your side.</dd>
+                </dl>
+              </div>
+            </div>
+            <div class="chip-group" id="house-rules-facet"></div>
+          </div>
+        </div>
+        <button id="start-game-btn" class="new-game-btn">Start Game</button>
+      </div>
+    </div>
+
+    <div class="top-buttons" id="top-buttons" hidden>
+      <button id="new-game-btn" class="new-game-btn" aria-label="Adjust rules and start a new game">New</button>
+      <button id="restart-game-btn" class="new-game-btn" aria-label="Restart current game">Restart</button>
+      <button id="deal-again-btn" class="new-game-btn" aria-label="Reshuffle cards and start new game with same rules">Reshuffle</button>
+      <button id="card-catalog-btn" class="new-game-btn" aria-label="View the card catalog">Catalog</button>
+    </div>
+
+    <div class="card-catalog-overlay" id="card-catalog-overlay" hidden>
+      <div class="card-catalog-modal">
+        <div class="modal-title">Card Catalog</div>
+        <div class="chip-group" id="card-catalog-set-facet"></div>
+        <div class="card-catalog-grid" id="card-catalog-grid"></div>
+        <div class="catalog-rank-nav">
+          <button type="button" class="stepper-btn" id="catalog-rank-prev" aria-label="Previous level">◀</button>
+          <div class="chip-group catalog-rank-facet" id="catalog-rank-facet"></div>
+          <button type="button" class="stepper-btn" id="catalog-rank-next" aria-label="Next level">▶</button>
+        </div>
+        <button id="card-catalog-close-btn" class="new-game-btn">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
