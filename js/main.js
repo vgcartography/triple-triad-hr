@@ -1460,7 +1460,7 @@ function setupRanksInfo(rankTotalRanges) {
   dt = document.createElement('dt');
   dt.textContent = `RNG`;
   dd = document.createElement('dd');
-  dd.textContent = 'Deals any card from the selected decks regardless of its real level, reassigning it a random selected Card Level for this game only.';
+  dd.textContent = 'Randomize card scores within the selected level range.';
   ranksInfoListEl.append(dt, dd);
   dt = document.createElement('dt');
   dt.textContent = `Themed`;
